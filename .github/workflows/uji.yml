@@ -1,0 +1,52 @@
+name: Uji alur
+
+# Uji mandiri memakai gambar sintetis (bukan produk). Tidak membuat Release dan tidak memakai jatah harian.
+# Jalan otomatis saat skrip berubah, atau manual dari tab Actions.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/**"
+      - "tests/**"
+      - ".github/workflows/uji.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  uji:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pasang FFmpeg dan font
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ffmpeg fonts-dejavu-core python3-pil
+          ffmpeg -version | head -1
+
+      - name: Tes unit
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Buat bahan sintetis
+        run: python3 tests/buat_bahan_uji.py "$RUNNER_TEMP/bahan"
+
+      - name: Render 3 varian
+        run: python3 scripts/run.py --meta "$RUNNER_TEMP/bahan/meta.json" --out out --no-limit
+
+      - name: Pastikan 3 video lulus QC
+        run: |
+          n=$(ls out/siap_upload/*.mp4 | wc -l)
+          echo "Video lulus: $n"
+          cat out/ringkasan.md
+          test "$n" -eq 3
+
+      - uses: actions/upload-artifact@v4
+        if: always() && hashFiles('out/**') != ''
+        with:
+          name: hasil-uji
+          path: out
+          retention-days: 3
