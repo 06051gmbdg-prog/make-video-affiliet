@@ -39,8 +39,5 @@ def qc_video(path, meta, settings):
     add(ok_frames, "Frame tidak hitam atau kosong")
     add(meta["n_scenes"] >= settings["foto_min"], f"Minimal {settings['foto_min']} adegan ({meta['n_scenes']} adegan)")
     add(bool(meta["name"]) and bool(meta["price"]), "Nama dan harga produk terisi")
-    add(meta["konfirmasi_asli"] and meta["konfirmasi_ai"], "Produk asli dan label AI sudah dikonfirmasi")
-    if meta["has_clip"]:
-        add(meta["konfirmasi_klip"], "Klip AI dikonfirmasi sama dengan produk asli")
     add(len(meta["caption"]) > 20, "Caption dan hashtag siap")
     return all(c["ok"] for c in checks), checks

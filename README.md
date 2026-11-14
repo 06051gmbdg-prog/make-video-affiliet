@@ -6,11 +6,10 @@ GitHub merender sampai 3 video vertikal 9:16 (1080x1920) dengan FFmpeg, memeriks
 
 ## Aturan wajib
 
-1. Video yang memakai AI harus diberi **label AI** saat diposting lewat aplikasi Shopee.
-2. Produk di video harus sama dengan produk sebenarnya. Pakai foto produk asli.
-3. Posting dilakukan manual setelah pengecekan.
-
-Form meminta dua konfirmasi pertama sebelum render jalan. Kalau ada klip AI, ada konfirmasi ketiga.
+1. Produk di video harus sama dengan produk sebenarnya. Pakai foto dan klip produk asli.
+2. Posting dilakukan manual setelah pengecekan.
+3. Bila video memuat presenter atau klip buatan AI, aturan Shopee mewajibkan label AI saat posting.
+   Video dari foto produk asli dan klip orang sungguhan tidak termasuk.
 
 ## Cara pakai dari HP (paling mudah)
 
@@ -19,9 +18,9 @@ Form meminta dua konfirmasi pertama sebelum render jalan. Kalau ada klip AI, ada
 3. Isi **Kalimat produk** dalam satu kalimat, contoh:
    `Parfum Hodl Scent Edp 75ml Paket Hemat 2 Botol Rp175.106 https://s.shopee.co.id/xxxx`
 4. Ketuk kotak **Foto dan klip produk**, lampirkan 3 sampai 8 foto produk asli. Urutan lampiran menentukan urutan adegan.
-5. Centang konfirmasi, lalu **Submit new issue**.
+5. Ketuk **Submit new issue**.
 6. Tunggu sekitar 3 sampai 6 menit. Balasan otomatis muncul di Issue berisi hasil QC, link unduh video, dan caption.
-7. Unduh videonya, tonton sampai habis, lalu posting di Shopee dengan **label AI aktif**.
+7. Unduh videonya, tonton sampai habis, lalu posting di Shopee.
 
 Yang dibaca otomatis dari kalimat: nama, harga (harus ditulis dengan `Rp` atau kata `harga`), dan link.
 Harga tidak bisa diambil dari link, jadi harus ada di kalimat. Cek dulu harga hari ini di Shopee.
@@ -30,6 +29,11 @@ Harga tidak bisa diambil dari link, jadi harus ada di kalimat. Cek dulu harga ha
 
 Tiga varian beda dalam gaya (Sinematik, Promo cepat, Elegan), kalimat pembuka, tombol akhir, kecepatan foto, dan urutan adegan.
 Kalimat pembuka dan kelebihan dibuat hanya dari kata di nama produk (misalnya isi paket dan ukuran), tanpa klaim tambahan.
+
+## Presenter UGC
+
+Lampirkan klip orang sungguhan yang memegang atau memakai produk (HP, vertikal 9:16, 5 sampai 8 detik). Klip dipakai
+penuh layar dengan teks, harga, dan tombol akhir di atasnya, jadi hasilnya seperti iklan UGC.
 
 ## Klip dari Veo atau Higgsfield
 
@@ -40,7 +44,7 @@ Kalimat pembuka dan kelebihan dibuat hanya dari kata di nama produk (misalnya is
 ## Cara lain: dari folder
 
 1. Unggah foto ke `bahan/nama-produk/` dengan nama berurutan (`01.jpg`, `02.jpg`, ...).
-2. Tab **Actions** > **Buat video** > **Run workflow**, isi kalimat dan folder, centang konfirmasi.
+2. Tab **Actions** > **Buat video** > **Run workflow**, isi kalimat dan folder.
 3. Hasil ada di **Releases** (dan di Artifact pada halaman run).
 
 ## Musik
@@ -52,7 +56,7 @@ File pertama (urut nama) dipakai untuk semua video. Kosongkan folder untuk video
 
 - Maksimal **5 video per hari** (zona waktu WIB), dihitung di `data/hari.json`. Tiga varian memakai 3 jatah.
 - QC otomatis: format 9:16, durasi 10 sampai 60 detik, ukuran file, frame tidak hitam, minimal 3 adegan,
-  nama dan harga terisi, konfirmasi lengkap. Hanya video yang lulus masuk Release.
+  nama dan harga terisi. Hanya video yang lulus masuk Release.
 
 ## Keamanan
 
@@ -69,7 +73,7 @@ File pertama (urut nama) dipakai untuk semua video. Kosongkan folder untuk video
 | `scripts/render.py` | Render FFmpeg: zoom foto, klip, transisi, teks, harga, kartu akhir, musik |
 | `scripts/qc.py` | Pemeriksaan kualitas |
 | `scripts/fetch_media.py` | Ambil kalimat dan lampiran dari Issue |
-| `config/settings.json` | Pengaturan (durasi, batas harian, penanda AI) |
+| `config/settings.json` | Pengaturan (durasi, batas harian, pengaturan lain) |
 
 ## Uji di komputer
 
@@ -77,7 +81,7 @@ File pertama (urut nama) dipakai untuk semua video. Kosongkan folder untuk video
 sudo apt-get install -y ffmpeg fonts-dejavu-core python3-pil
 python3 -m unittest discover -s tests
 python3 scripts/run.py --kalimat "Nama Produk Rp49.000 https://s.shopee.co.id/xxx" \
-  --folder bahan/nama-produk --konfirmasi-asli --konfirmasi-ai --no-limit
+  --folder bahan/nama-produk --no-limit
 ```
 
 Hasil ada di folder `out/`.

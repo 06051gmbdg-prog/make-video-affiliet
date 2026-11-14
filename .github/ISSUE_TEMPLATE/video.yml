@@ -1,5 +1,5 @@
 name: Buat video affiliate
-description: Satu kalimat berisi nama produk, harga, dan link. Lampirkan foto produk asli. Hasilnya sampai 3 video.
+description: Satu kalimat berisi nama produk, harga, dan link. Lampirkan foto atau klip produk. Hasilnya sampai 3 video.
 title: "Video: "
 body:
   - type: input
@@ -14,7 +14,7 @@ body:
     id: bahan
     attributes:
       label: Foto dan klip produk
-      description: Ketuk kotak ini, lalu lampirkan 3 sampai 8 foto produk asli. Klip video dari Veo atau Higgsfield boleh ditambahkan (maksimal 10 MB per klip). Urutan lampiran menentukan urutan adegan.
+      description: Ketuk kotak ini, lalu lampirkan 3 sampai 8 foto produk. Klip presenter atau UGC boleh ditambahkan (maksimal 10 MB per klip). Urutan lampiran menentukan urutan adegan.
     validations:
       required: false
   - type: input
@@ -37,15 +37,3 @@ body:
       default: 0
     validations:
       required: true
-  - type: checkboxes
-    id: konfirmasi
-    attributes:
-      label: Konfirmasi
-      description: Dua yang pertama wajib. Yang ketiga hanya bila memakai klip AI.
-      options:
-        - label: Semua foto dan klip adalah produk asli yang saya jual, sesuai yang dikirim ke pembeli.
-          required: true
-        - label: Saya akan mengaktifkan label AI saat memposting di aplikasi Shopee.
-          required: true
-        - label: Klip AI sudah saya tonton sampai habis, dan bentuk, logo, serta label produk tidak berubah.
-          required: false

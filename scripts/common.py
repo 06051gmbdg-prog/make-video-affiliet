@@ -126,11 +126,6 @@ def build_caption(name, hook, benefits, tags, url, ada_klip):
         lines += ["", tags]
     if url:
         lines += ["", "Link affiliate: " + url]
-    lines += ["", "INGAT sebelum Posting di Shopee:",
-              "1. Aktifkan LABEL AI di aplikasi Shopee.",
-              "2. Pastikan produk di video sama dengan produk asli."]
-    if ada_klip:
-        lines.append("3. Klip AI sudah ditonton dan bentuk, logo, label produk tidak berubah.")
     return "\n".join(lines) + "\n"
 
 

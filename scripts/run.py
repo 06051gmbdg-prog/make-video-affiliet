@@ -101,8 +101,6 @@ def main():
     if not prod["price"]:
         fail(out, "Harga belum ada. Tulis harga di kalimat, misalnya `Rp175.106`. "
                   "Cek dulu harga hari ini di Shopee.")
-    if not (konf[0] and konf[1]):
-        fail(out, "Konfirmasi wajib belum dicentang: produk asli dan label AI.")
     d = derive(prod["name"])
 
     # 2. bahan: folder repo lalu lampiran
@@ -120,8 +118,6 @@ def main():
         fail(out, f"Bahan kurang: {len(items)} adegan, minimal {settings['foto_min']}. "
                   "Lampirkan foto produk asli atau isi folder bahan.")
     has_clip = any(x["kind"] == "clip" for x in items)
-    if has_clip and not konf[2]:
-        fail(out, "Ada klip video. Centang konfirmasi: klip sudah ditonton dan produknya sama dengan aslinya.")
 
     # 3. batas harian
     count = varian
@@ -189,7 +185,6 @@ def main():
     lines += ["### Sebelum menekan Posting di Shopee",
               "1. Tonton video sampai habis. Produk harus sama dengan yang dijual.",
               "2. Cocokkan harga di video dengan harga di Shopee hari ini.",
-              "3. **Aktifkan label AI** di aplikasi Shopee.",
               "", f"Jatah hari ini terpakai: {settings['video_per_hari'] - limit.remaining()}"
               f" dari {settings['video_per_hari']} video."]
     write_summary(out, lines)

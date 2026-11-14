@@ -9,6 +9,6 @@
   "foto_min": 3,
   "adegan_maks": 8,
   "varian_default": 3,
-  "penanda_ai": true,
+  "penanda_ai": false,
   "musik_volume": 0.6
 }

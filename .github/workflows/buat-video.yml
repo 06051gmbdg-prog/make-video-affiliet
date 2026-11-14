@@ -23,18 +23,6 @@ on:
         default: "3"
         type: choice
         options: ["3", "2", "1"]
-      konfirmasi_asli:
-        description: "Semua foto dan klip adalah produk asli yang saya jual"
-        type: boolean
-        default: false
-      konfirmasi_ai:
-        description: "Saya akan mengaktifkan label AI saat posting di Shopee"
-        type: boolean
-        default: false
-      konfirmasi_klip:
-        description: "Bila ada klip AI: sudah ditonton dan produknya sama dengan aslinya"
-        type: boolean
-        default: false
 
 permissions:
   contents: write
@@ -89,14 +77,8 @@ jobs:
           KALIMAT: ${{ inputs.kalimat }}
           FOLDER: ${{ inputs.folder }}
           VARIAN: ${{ inputs.varian }}
-          K_ASLI: ${{ inputs.konfirmasi_asli }}
-          K_AI: ${{ inputs.konfirmasi_ai }}
-          K_KLIP: ${{ inputs.konfirmasi_klip }}
         run: |
           args=()
-          [ "$K_ASLI" = "true" ] && args+=(--konfirmasi-asli)
-          [ "$K_AI" = "true" ] && args+=(--konfirmasi-ai)
-          [ "$K_KLIP" = "true" ] && args+=(--konfirmasi-klip)
           python3 scripts/run.py --kalimat "$KALIMAT" --folder "$FOLDER" --varian "$VARIAN" \
             "${args[@]}" --out out --repo "$REPO" --tag "$TAG"
 
