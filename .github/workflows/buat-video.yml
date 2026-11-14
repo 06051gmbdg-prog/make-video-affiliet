@@ -1,0 +1,142 @@
+name: Buat video
+
+# Dua cara memicu:
+#  1. Buka Issue baru dari form "Buat video affiliate" (paling mudah dari HP).
+#  2. Actions > Buat video > Run workflow (bahan diambil dari folder bahan/ di repo).
+
+on:
+  issues:
+    types: [opened]
+  workflow_dispatch:
+    inputs:
+      kalimat:
+        description: "Satu kalimat: nama produk, harga (Rp...), dan link affiliate"
+        required: true
+        type: string
+      folder:
+        description: "Folder bahan di repo, contoh: bahan/hodl-scent"
+        required: true
+        type: string
+      varian:
+        description: "Jumlah varian video"
+        required: true
+        default: "3"
+        type: choice
+        options: ["3", "2", "1"]
+      konfirmasi_asli:
+        description: "Semua foto dan klip adalah produk asli yang saya jual"
+        type: boolean
+        default: false
+      konfirmasi_ai:
+        description: "Saya akan mengaktifkan label AI saat posting di Shopee"
+        type: boolean
+        default: false
+      konfirmasi_klip:
+        description: "Bila ada klip AI: sudah ditonton dan produknya sama dengan aslinya"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: buat-video
+  cancel-in-progress: false
+
+jobs:
+  render:
+    # Issue hanya diproses bila dibuat pemilik repo lewat form (ada kata "Kalimat produk").
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.issue.user.login == github.repository_owner &&
+       contains(github.event.issue.body, 'Kalimat produk'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pasang FFmpeg dan font
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ffmpeg fonts-dejavu-core python3-pil
+
+      - name: Buat nama rilis
+        id: tag
+        run: echo "tag=video-$(date -u +%Y%m%d-%H%M%S)-${GITHUB_RUN_ID}" >> "$GITHUB_OUTPUT"
+
+      - name: Ambil kalimat dan lampiran dari Issue
+        if: github.event_name == 'issues'
+        env:
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          mkdir -p work
+          python3 scripts/fetch_media.py --issue "$ISSUE" --repo "$REPO" --out work/issue --meta work/issue.json
+
+      - name: Render video (dari Issue)
+        if: github.event_name == 'issues'
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: python3 scripts/run.py --meta work/issue.json --out out --repo "$REPO" --tag "$TAG"
+
+      - name: Render video (manual)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+          KALIMAT: ${{ inputs.kalimat }}
+          FOLDER: ${{ inputs.folder }}
+          VARIAN: ${{ inputs.varian }}
+          K_ASLI: ${{ inputs.konfirmasi_asli }}
+          K_AI: ${{ inputs.konfirmasi_ai }}
+          K_KLIP: ${{ inputs.konfirmasi_klip }}
+        run: |
+          args=()
+          [ "$K_ASLI" = "true" ] && args+=(--konfirmasi-asli)
+          [ "$K_AI" = "true" ] && args+=(--konfirmasi-ai)
+          [ "$K_KLIP" = "true" ] && args+=(--konfirmasi-klip)
+          python3 scripts/run.py --kalimat "$KALIMAT" --folder "$FOLDER" --varian "$VARIAN" \
+            "${args[@]}" --out out --repo "$REPO" --tag "$TAG"
+
+      - name: Buat Release berisi video siap upload
+        if: success() && hashFiles('out/siap_upload/*.mp4') != ''
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          gh release create "$TAG" out/siap_upload/* \
+            --title "Video $TAG" --notes-file out/ringkasan.md
+
+      - name: Simpan hitungan harian
+        if: always()
+        run: |
+          if ! git diff --quiet -- data/hari.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add data/hari.json
+            git commit -m "Hitungan video harian"
+            git pull --rebase || true
+            git push
+          fi
+
+      - name: Simpan hasil sebagai Artifact (7 hari)
+        if: always() && hashFiles('out/**') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: hasil-video
+          path: out
+          retention-days: 7
+
+      - name: Balas di Issue
+        if: always() && github.event_name == 'issues'
+        env:
+          ISSUE: ${{ github.event.issue.number }}
+        run: |
+          mkdir -p work
+          if [ -f out/ringkasan.md ]; then
+            gh issue comment "$ISSUE" --body-file out/ringkasan.md
+          else
+            echo "Proses berhenti sebelum video dibuat. Lihat log: $GITHUB_SERVER_URL/$REPO/actions/runs/$GITHUB_RUN_ID" > work/gagal.md
+            gh issue comment "$ISSUE" --body-file work/gagal.md
+          fi

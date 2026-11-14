@@ -1,0 +1,14 @@
+{
+  "nama_sistem": "MAKE VIDEO AFFILIET",
+  "video_per_hari": 5,
+  "fps": 30,
+  "per_foto": 3.5,
+  "klip_maks": 8,
+  "durasi_min": 10,
+  "durasi_maks": 60,
+  "foto_min": 3,
+  "adegan_maks": 8,
+  "varian_default": 3,
+  "penanda_ai": true,
+  "musik_volume": 0.6
+}

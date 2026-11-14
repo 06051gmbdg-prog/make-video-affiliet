@@ -1,0 +1,51 @@
+name: Buat video affiliate
+description: Satu kalimat berisi nama produk, harga, dan link. Lampirkan foto produk asli. Hasilnya sampai 3 video.
+title: "Video: "
+body:
+  - type: input
+    id: kalimat
+    attributes:
+      label: Kalimat produk
+      description: Nama produk, harga (tulis dengan Rp), dan link affiliate dalam satu kalimat.
+      placeholder: Parfum Hodl Scent Edp 75ml Paket Hemat 2 Botol Rp175.106 https://s.shopee.co.id/xxxx
+    validations:
+      required: true
+  - type: textarea
+    id: bahan
+    attributes:
+      label: Foto dan klip produk
+      description: Ketuk kotak ini, lalu lampirkan 3 sampai 8 foto produk asli. Klip video dari Veo atau Higgsfield boleh ditambahkan (maksimal 10 MB per klip). Urutan lampiran menentukan urutan adegan.
+    validations:
+      required: false
+  - type: input
+    id: folder
+    attributes:
+      label: Folder bahan di repo (opsional)
+      description: Isi bila foto atau klip sudah diunggah ke folder di dalam bahan/, misalnya untuk klip lebih dari 10 MB.
+      placeholder: bahan/hodl-scent
+    validations:
+      required: false
+  - type: dropdown
+    id: varian
+    attributes:
+      label: Jumlah varian
+      description: Tiga varian memakai 3 dari jatah 5 video per hari.
+      options:
+        - "3"
+        - "2"
+        - "1"
+      default: 0
+    validations:
+      required: true
+  - type: checkboxes
+    id: konfirmasi
+    attributes:
+      label: Konfirmasi
+      description: Dua yang pertama wajib. Yang ketiga hanya bila memakai klip AI.
+      options:
+        - label: Semua foto dan klip adalah produk asli yang saya jual, sesuai yang dikirim ke pembeli.
+          required: true
+        - label: Saya akan mengaktifkan label AI saat memposting di aplikasi Shopee.
+          required: true
+        - label: Klip AI sudah saya tonton sampai habis, dan bentuk, logo, serta label produk tidak berubah.
+          required: false
