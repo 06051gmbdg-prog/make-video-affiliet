@@ -53,6 +53,10 @@ def parse_sentence(s):
         if dg:
             price = fmt_rp(int(dg))
         rest = rest.replace(pm.group(0), " ")
+    # Teks tombol Bagikan Shopee: "Cek <nama> dengan harga Rp... Dapatkan di Shopee sekarang!"
+    rest = re.sub(r"\bdengan\s+harga\b", " ", rest, flags=re.I)
+    rest = re.sub(r"\bdapatkan\s+di\s+shopee.*$", " ", rest, flags=re.I | re.S)
+    rest = re.sub(r"^\s*(?:cek|lihat|intip)\s+", "", rest, flags=re.I)
     name = re.sub(r"\b(link|tautan|judul|nama\s+produk|nama|affiliate|afiliasi)\b\s*[:=-]?", " ",
                   rest, flags=re.I)
     name = re.sub(r"[|;]+", " ", name)

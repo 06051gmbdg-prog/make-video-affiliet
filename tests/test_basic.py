@@ -24,6 +24,12 @@ class ParseSentence(unittest.TestCase):
         self.assertEqual(p["name"], "Botol Minum 1 Liter Anti Bocor")
         self.assertEqual(p["price"], "Rp 35.000")
 
+    def test_teks_bagikan_shopee(self):
+        p = common.parse_sentence("Cek USEMO CI30 Jump Starter Pompa Ban dengan harga Rp621.300. "
+                                  "Dapatkan di Shopee sekarang! https://s.shopee.co.id/9zzIj5pm1Z")
+        self.assertEqual(p["name"], "USEMO CI30 Jump Starter Pompa Ban")
+        self.assertEqual(p["price"], "Rp 621.300")
+
     def test_tanpa_harga(self):
         p = common.parse_sentence("Sepatu Lari Pria https://s.shopee.co.id/abc")
         self.assertEqual(p["price"], "")
