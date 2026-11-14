@@ -35,6 +35,39 @@ Kalimat pembuka dan kelebihan dibuat hanya dari kata di nama produk (misalnya is
 Lampirkan klip orang sungguhan yang memegang atau memakai produk (HP, vertikal 9:16, 5 sampai 8 detik). Klip dipakai
 penuh layar dengan teks, harga, dan tombol akhir di atasnya, jadi hasilnya seperti iklan UGC.
 
+## Contoh iklan UGC: USEMO CI30 (30 detik)
+
+Contoh ini memakai struktur video review hands-on: tampilkan produk, buktikan tiap fungsi dengan tangan sendiri, tutup dengan ajakan.
+Naskah di bawah ditulis ulang sendiri. Jangan memakai rekaman atau caption video orang lain. Rekam produkmu sendiri.
+
+Kalimat produk:
+`Cek USEMO CI30 Jump Starter Pompa Ban dengan harga Rp621.300. Dapatkan di Shopee sekarang! https://s.shopee.co.id/9zzIj5pm1Z`
+
+| Detik | Adegan (rekam vertikal 9:16) | Teks di layar |
+|---|---|---|
+| 0-3 | Pegang produk dekat kamera, layar digital menyala | Aki lemah? Ban kempes? |
+| 3-8 | Jepit kabel ke aki mobil, tunjukkan klem terpasang | Starter darurat 12V |
+| 8-14 | Sambung selang ke ban, layar menampilkan tekanan PSI | Pompa ban, tekanan terlihat di layar |
+| 14-19 | Nyalakan lampu, tunjukkan mode terang | Lampu LED, cocok untuk keadaan darurat |
+| 19-24 | Colok HP ke port USB, tunjukkan HP mengisi | Bisa jadi power bank |
+| 24-28 | Tata isi paket di meja: produk, kabel, tas, selang | Isi paket lengkap |
+| 28-30 | Produk di tangan, arahkan ke keranjang | Rp621.300, cek keranjang kuning |
+
+Caption:
+
+```
+USEMO CI30: starter darurat, pompa ban, lampu, dan power bank dalam satu alat.
+Cek keranjang kuning di video ini ya!
+#shopee #rekomendasi #racunshopee #usemo
+Link: https://s.shopee.co.id/9zzIj5pm1Z
+```
+
+Tips rekam:
+- Satu adegan satu fungsi, 3 sampai 6 detik. Rekam sebelum jam gelap supaya layar produk terbaca.
+- Tunjukkan fungsi yang benar-benar kamu coba. Jangan menyebut angka (mAh, waktu isi) yang tidak ada di deskripsi Shopee.
+- Cocokkan harga di teks dengan harga Shopee hari ini sebelum posting.
+- Lampirkan klip-klip itu di Issue bersama 3 sampai 8 foto, lalu pilih 3 varian.
+
 ## Klip dari Veo atau Higgsfield
 
 - Lampirkan klip di Issue (maksimal 10 MB per klip), atau unggah ke folder `bahan/nama-produk/` lewat **Add file > Upload files**
