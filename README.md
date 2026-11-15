@@ -80,6 +80,27 @@ Tips rekam:
 2. Tab **Actions** > **Buat video** > **Run workflow**, isi kalimat dan folder.
 3. Hasil ada di **Releases** (dan di Artifact pada halaman run).
 
+## Klip suasana dari Pixabay (opsional)
+
+Supaya video tidak hanya berisi foto, isi kolom **Kata kunci suasana** (bahasa Inggris, contoh `car road night`).
+Dua klip stok gratis dari Pixabay disisipkan di antara fotomu. Klip itu hanya latar. Produk tetap dari fotomu sendiri.
+
+Pasang sekali: daftar gratis di pixabay.com, ambil API key di pixabay.com/api/docs, lalu di repo buka
+**Settings > Secrets and variables > Actions > New repository secret**, nama `PIXABAY_API_KEY`.
+Tanpa kunci atau kalau Pixabay gagal, video tetap dibuat tanpa klip suasana. Pixabay membolehkan pemakaian komersial tanpa atribusi.
+
+## Kirim otomatis ke Telegram (opsional)
+
+Video yang lulus QC dikirim ke chat Telegram-mu beserta caption, jadi bisa langsung disimpan dan diposting dari HP.
+
+1. Di Telegram, chat **@BotFather**, kirim `/newbot`, ikuti langkahnya. Kamu mendapat token bot.
+2. Buka bot barumu dan kirim satu pesan, misalnya `halo`.
+3. Cari chat id: buka `https://api.telegram.org/bot<TOKEN>/getUpdates` di Chrome, lihat angka di `"chat":{"id":...}`.
+4. Di repo, **Settings > Secrets and variables > Actions**, buat dua secret: `TELEGRAM_BOT_TOKEN` dan `TELEGRAM_CHAT_ID`.
+
+Jangan menempel token di chat atau Issue. Simpan hanya di Secrets. Bot Telegram membatasi file 50 MB (video di sini 4 sampai 5 MB).
+Tanpa kedua secret, langkah ini dilewati dan video tetap ada di Release.
+
 ## Musik
 
 Taruh satu file musik milik sendiri atau bebas hak cipta (`.mp3`, `.m4a`, `.wav`) di folder `musik/`.
@@ -105,6 +126,8 @@ File pertama (urut nama) dipakai untuk semua video. Kosongkan folder untuk video
 | `scripts/run.py` | Alur utama: kalimat, bahan, render, QC, caption, ringkasan |
 | `scripts/render.py` | Render FFmpeg: zoom foto, klip, transisi, teks, harga, kartu akhir, musik |
 | `scripts/qc.py` | Pemeriksaan kualitas |
+| `scripts/pixabay.py` | Ambil klip suasana dari Pixabay |
+| `scripts/kirim_telegram.sh` | Kirim video lulus QC ke Telegram |
 | `scripts/fetch_media.py` | Ambil kalimat dan lampiran dari Issue |
 | `config/settings.json` | Pengaturan (durasi, batas harian, pengaturan lain) |
 

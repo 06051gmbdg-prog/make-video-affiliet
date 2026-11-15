@@ -13,6 +13,7 @@ import traceback
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import limit  # noqa: E402
+import pixabay  # noqa: E402
 from common import (MUSIC_EXT, ROOT, STYLES, build_caption, derive, load_settings,  # noqa: E402
                     make_variants, parse_sentence, slugify)
 from qc import qc_video  # noqa: E402
@@ -64,6 +65,7 @@ def main():
     ap.add_argument("--folder", default="")
     ap.add_argument("--meta", default="")
     ap.add_argument("--varian", type=int, default=0)
+    ap.add_argument("--suasana", default="", help="kata kunci klip suasana Pixabay (opsional)")
     ap.add_argument("--out", default="out")
     ap.add_argument("--repo", default="")
     ap.add_argument("--tag", default="")
@@ -79,12 +81,14 @@ def main():
     settings = load_settings()
 
     kalimat, folder, varian, konf = a.kalimat, a.folder, a.varian, [False, False, False]
+    suasana = a.suasana
     extra = []
     if a.meta:
         with open(a.meta, encoding="utf8") as f:
             meta = json.load(f)
         kalimat = kalimat or meta.get("kalimat", "")
         folder = folder or meta.get("folder", "")
+        suasana = suasana or meta.get("suasana", "")
         varian = varian or int(meta.get("varian") or 0)
         konf = (list(meta.get("konfirmasi") or []) + [False] * 3)[:3]
         extra = meta.get("media") or []
@@ -118,6 +122,15 @@ def main():
         fail(out, f"Bahan kurang: {len(items)} adegan, minimal {settings['foto_min']}. "
                   "Lampirkan foto produk asli atau isi folder bahan.")
     has_clip = any(x["kind"] == "clip" for x in items)
+
+    # 2b. klip suasana dari Pixabay (opsional, hanya latar; produk tetap dari fotomu)
+    broll = os.path.join(out, ".broll")
+    if suasana:
+        extra_b = pixabay.ambil_broll(suasana, broll, n=2)
+        for pos, b in zip((1, 3), extra_b):
+            items.insert(min(pos, len(items)), b)
+        has_clip = has_clip or bool(extra_b)
+        print(f"Pixabay: {len(extra_b)} klip suasana ('{suasana}')")
 
     # 3. batas harian
     count = varian
@@ -164,6 +177,7 @@ def main():
         fail(out, "Render gagal: " + str(e)[:900])
     finally:
         shutil.rmtree(work, ignore_errors=True)
+        shutil.rmtree(broll, ignore_errors=True)
 
     if not a.no_limit:
         limit.add(len(results))

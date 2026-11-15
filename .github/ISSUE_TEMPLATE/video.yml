@@ -37,3 +37,11 @@ body:
       default: 0
     validations:
       required: true
+  - type: input
+    id: suasana
+    attributes:
+      label: Kata kunci suasana dari Pixabay (opsional)
+      description: Klip latar gratis disisipkan di antara fotomu. Hanya suasana, bukan produk. Pakai bahasa Inggris, contoh: car road night
+      placeholder: car road night
+    validations:
+      required: false

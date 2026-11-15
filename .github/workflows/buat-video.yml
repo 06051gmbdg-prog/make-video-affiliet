@@ -23,6 +23,11 @@ on:
         default: "3"
         type: choice
         options: ["3", "2", "1"]
+      suasana:
+        description: "Kata kunci klip suasana Pixabay, bahasa Inggris (opsional), contoh: car road night"
+        required: false
+        default: ""
+        type: string
 
 permissions:
   contents: write
@@ -44,6 +49,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       REPO: ${{ github.repository }}
+      PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -77,10 +83,10 @@ jobs:
           KALIMAT: ${{ inputs.kalimat }}
           FOLDER: ${{ inputs.folder }}
           VARIAN: ${{ inputs.varian }}
+          SUASANA: ${{ inputs.suasana }}
         run: |
-          args=()
           python3 scripts/run.py --kalimat "$KALIMAT" --folder "$FOLDER" --varian "$VARIAN" \
-            "${args[@]}" --out out --repo "$REPO" --tag "$TAG"
+            --suasana "$SUASANA" --out out --repo "$REPO" --tag "$TAG"
 
       - name: Buat Release berisi video siap upload
         if: success() && hashFiles('out/siap_upload/*.mp4') != ''
@@ -89,6 +95,14 @@ jobs:
         run: |
           gh release create "$TAG" out/siap_upload/* \
             --title "Video $TAG" --notes-file out/ringkasan.md
+
+      - name: Kirim video ke Telegram
+        if: success() && hashFiles('out/siap_upload/*.mp4') != ''
+        continue-on-error: true
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: bash scripts/kirim_telegram.sh out/siap_upload
 
       - name: Simpan hitungan harian
         if: always()
