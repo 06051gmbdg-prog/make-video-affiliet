@@ -59,6 +59,10 @@ def parse_sentence(s):
     rest = re.sub(r"^\s*(?:cek|lihat|intip)\s+", "", rest, flags=re.I)
     name = re.sub(r"\b(link|tautan|judul|nama\s+produk|nama|affiliate|afiliasi)\b\s*[:=-]?", " ",
                   rest, flags=re.I)
+    if "|" in name:  # judul Shopee penuh kata kunci: "sofa a | sofa b | sofa c - merek" -> "sofa a merek"
+        parts = [x.strip() for x in name.split("|") if x.strip()]
+        brand = parts[-1].split(" - ")[-1].strip() if " - " in parts[-1] else ""
+        name = (parts[0] + " " + brand).strip() if parts else name
     name = re.sub(r"[|;]+", " ", name)
     name = re.sub(r"\s+", " ", name)
     name = re.sub(r"^[\s:,.-]+|[\s:,.-]+$", "", name)

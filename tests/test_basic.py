@@ -30,6 +30,12 @@ class ParseSentence(unittest.TestCase):
         self.assertEqual(p["name"], "USEMO CI30 Jump Starter Pompa Ban")
         self.assertEqual(p["price"], "Rp 621.300")
 
+    def test_judul_penuh_kata_kunci(self):
+        p = common.parse_sentence("Cek sofa canada | sofa modern | sofa kantor - starmoon dengan harga Rp1.041.001. "
+                                  "Dapatkan di Shopee sekarang! https://s.shopee.co.id/2gCmgbXbdc")
+        self.assertEqual(p["name"], "sofa canada starmoon")
+        self.assertEqual(p["price"], "Rp 1.041.001")
+
     def test_tanpa_harga(self):
         p = common.parse_sentence("Sepatu Lari Pria https://s.shopee.co.id/abc")
         self.assertEqual(p["price"], "")
