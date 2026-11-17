@@ -14,6 +14,7 @@ import traceback
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import limit  # noqa: E402
 import pixabay  # noqa: E402
+import tts  # noqa: E402
 from common import (MUSIC_EXT, ROOT, STYLES, build_caption, derive, load_settings,  # noqa: E402
                     make_variants, parse_sentence, slugify)
 from qc import qc_video  # noqa: E402
@@ -65,6 +66,7 @@ def main():
     ap.add_argument("--folder", default="")
     ap.add_argument("--meta", default="")
     ap.add_argument("--varian", type=int, default=0)
+    ap.add_argument("--suara", default="", help="perempuan | laki-laki | tanpa")
     ap.add_argument("--suasana", default="", help="kata kunci klip suasana Pixabay (opsional)")
     ap.add_argument("--out", default="out")
     ap.add_argument("--repo", default="")
@@ -82,6 +84,7 @@ def main():
 
     kalimat, folder, varian, konf = a.kalimat, a.folder, a.varian, [False, False, False]
     suasana = a.suasana
+    suara = a.suara
     extra = []
     if a.meta:
         with open(a.meta, encoding="utf8") as f:
@@ -89,6 +92,7 @@ def main():
         kalimat = kalimat or meta.get("kalimat", "")
         folder = folder or meta.get("folder", "")
         suasana = suasana or meta.get("suasana", "")
+        suara = suara or meta.get("suara", "")
         varian = varian or int(meta.get("varian") or 0)
         konf = (list(meta.get("konfirmasi") or []) + [False] * 3)[:3]
         extra = meta.get("media") or []
@@ -97,6 +101,8 @@ def main():
     konf[1] = konf[1] or a.konfirmasi_ai
     konf[2] = konf[2] or a.konfirmasi_klip
     varian = varian or int(settings["varian_default"])
+    suara = (suara or settings.get("suara", "perempuan")).strip().lower()
+    pakai_suara = suara in tts.SUARA
 
     # 1. produk dari satu kalimat
     prod = parse_sentence(kalimat)
@@ -159,12 +165,23 @@ def main():
             fname = f"{slug}-{var['label'].split()[-1].lower()}.mp4"
             tmp = os.path.join(out, fname)
             print("Render", var["label"], STYLES[var["style"]]["label"], flush=True)
+            voices, suara_ok = [], False
+            if pakai_suara:
+                jenis = suara
+                intro, outro = tts.naskah(var["hook"], d["benefits"], prod["price"], var["cta"])
+                for kunci, teks, anchor in (("i", intro, "start"), ("o", outro, "end")):
+                    pth = tts.buat_suara(teks, os.path.join(work, f"{fname[:-4]}_{kunci}.mp3"), jenis)
+                    if pth:
+                        voices.append((pth, anchor))
+                suara_ok = len(voices) == 2
+                print("Suara:", jenis, "OK" if suara_ok else "tidak lengkap")
             render_variant(ctx, order, var, {"name": prod["name"], "price": prod["price"],
-                                             "benefits": d["benefits"]}, music, tmp)
+                                             "benefits": d["benefits"]}, music, tmp, voices)
             caption = build_caption(prod["name"], var["hook"], d["benefits"], d["tags"], prod["url"], has_clip)
             ok, checks = qc_video(tmp, {"name": prod["name"], "price": prod["price"], "n_scenes": n,
                                         "konfirmasi_asli": konf[0], "konfirmasi_ai": konf[1],
-                                        "konfirmasi_klip": konf[2], "has_clip": has_clip,
+                                        "konfirmasi_klip": konf[2], "has_clip": has_clip, "butuh_suara": pakai_suara,
+                                        "suara_ok": suara_ok,
                                         "caption": caption}, settings)
             dest = os.path.join(out, "siap_upload" if ok else "gagal_qc")
             shutil.move(tmp, os.path.join(dest, fname))

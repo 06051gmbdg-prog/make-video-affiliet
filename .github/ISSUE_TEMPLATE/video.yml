@@ -45,3 +45,15 @@ body:
       placeholder: car road night
     validations:
       required: false
+  - type: dropdown
+    id: suara
+    attributes:
+      label: Suara narasi
+      description: Narasi bahasa Indonesia dibaca otomatis dari nama, harga, dan kalimat pembuka.
+      options:
+        - Perempuan
+        - Laki-laki
+        - Tanpa suara
+      default: 0
+    validations:
+      required: true

@@ -110,6 +110,7 @@ def main():
     kal = re.sub(r"\s+", " ", field(secs, "Kalimat produk"))
     folder = field(secs, "Folder bahan").strip()
     varian = field(secs, "Jumlah varian")
+    suara = {"perempuan": "perempuan", "laki-laki": "laki-laki"}.get(field(secs, "Suara narasi").strip().lower(), "tanpa")
     suasana = re.sub(r"\s+", " ", field(secs, "Kata kunci suasana")).strip()
     konf = [bool(re.match(r"-\s*\[[xX]\]", ln.strip())) for ln in field(secs, "Konfirmasi").splitlines()
             if ln.strip().startswith("- [")]
@@ -122,7 +123,7 @@ def main():
             media.append({"path": os.path.abspath(path), "kind": kind})
         except Exception as e:  # noqa: BLE001
             gagal.append(f"lampiran {i + 1}: {e}")
-    meta = {"kalimat": kal, "folder": folder, "suasana": suasana, "varian": int(varian) if varian.isdigit() else 0,
+    meta = {"kalimat": kal, "folder": folder, "suasana": suasana, "suara": suara, "varian": int(varian) if varian.isdigit() else 0,
             "konfirmasi": konf, "media": media, "gagal_unduh": gagal}
     os.makedirs(os.path.dirname(os.path.abspath(a.meta)), exist_ok=True)
     with open(a.meta, "w", encoding="utf8") as f:

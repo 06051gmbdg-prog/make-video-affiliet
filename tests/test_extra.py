@@ -102,3 +102,30 @@ class TestTelegram(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+import tts  # noqa: E402
+
+
+class TestSuara(unittest.TestCase):
+    def test_terbilang(self):
+        self.assertEqual(tts.terbilang(621300), "enam ratus dua puluh satu ribu tiga ratus")
+        self.assertEqual(tts.terbilang(1500), "seribu lima ratus")
+        self.assertEqual(tts.terbilang(175106), "seratus tujuh puluh lima ribu seratus enam")
+        self.assertEqual(tts.harga_ucap("Rp 49.000"), "empat puluh sembilan ribu rupiah")
+        self.assertEqual(tts.harga_ucap(""), "")
+
+    def test_naskah_hanya_dari_data(self):
+        a, b = tts.naskah("Cek Produk X!", ["Isi 2 botol"], "Rp 10.000", "KLIK KERANJANG KUNING")
+        self.assertEqual(a, "Cek Produk X. Isi 2 botol.")
+        self.assertIn("sepuluh ribu rupiah", b)
+        self.assertIn("klik keranjang kuning", b)
+
+    def test_semua_mesin_gagal_kembalikan_kosong(self):
+        old = (tts._edge, tts._espeak)
+        tts._edge = lambda *a, **k: (_ for _ in ()).throw(OSError("x"))
+        tts._espeak = lambda *a, **k: (_ for _ in ()).throw(OSError("y"))
+        try:
+            self.assertEqual(tts.buat_suara("halo", os.path.join(tempfile.mkdtemp(), "a.mp3")), "")
+        finally:
+            tts._edge, tts._espeak = old

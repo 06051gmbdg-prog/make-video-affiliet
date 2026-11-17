@@ -181,14 +181,18 @@ def build_end(ctx, m_last, name, price, cta, ai, st, out, dur=3.0):
     return out
 
 
-def assemble(scene_paths, trans, tdur, music, volume, out):
+def assemble(scene_paths, trans, tdur, music, volume, out, voices=None):
     durs = [probe(p)["duration"] for p in scene_paths]
     n = len(scene_paths)
     cmd = list(BASE)
     for p in scene_paths:
         cmd += ["-i", p]
+    voices = [v for v in (voices or []) if v and v[0] and os.path.exists(v[0])]
     if music:
         cmd += ["-stream_loop", "-1", "-i", music]
+    vbase = n + (1 if music else 0)
+    for v in voices:
+        cmd += ["-i", v[0]]
     parts = [f"[{i}:v]fps={FPS},settb=AVTB,setpts=PTS-STARTPTS,format=yuv420p[s{i}]" for i in range(n)]
     cur, acc = "[s0]", durs[0]
     for i in range(1, n):
@@ -198,10 +202,32 @@ def assemble(scene_paths, trans, tdur, music, volume, out):
     total = acc
     parts.append(f"{cur}format=yuv420p[v]")
     cmd += ["-filter_complex", ";".join(parts), "-map", "[v]"]
+    fa = []
+    if voices:
+        # Narasi: pembuka di awal, penutup selaras kartu akhir. Musik direndahkan di bawah suara.
+        end_t, labels = 0.0, []
+        for k, (vp, anchor) in enumerate(voices):
+            vd = probe(vp)["duration"] or 3.0
+            st = 0.3 if anchor == "start" else max(end_t + 0.3, total - vd - 0.4)
+            end_t = st + vd
+            ms = int(st * 1000)
+            fa.append(f"[{vbase + k}:a]aresample=44100,aformat=channel_layouts=stereo,volume=1.4,"
+                       f"adelay={ms}|{ms}[v{k}]")
+            labels.append(f"[v{k}]")
+        fa.append("".join(labels) + f"amix=inputs={len(voices)}:normalize=0:dropout_transition=0,"
+                  f"apad,atrim=0:{total:.3f}[vo]")
     if music:
-        parts_a = (f"[{n}:a]atrim=0:{total:.3f},asetpts=PTS-STARTPTS,"
-                   f"afade=t=out:st={max(0.0, total - 1.2):.3f}:d=1.2,volume={volume}[a]")
-        cmd[cmd.index("-filter_complex") + 1] += ";" + parts_a
+        mv = volume * (0.3 if voices else 1.0)
+        fa.append(f"[{n}:a]atrim=0:{total:.3f},asetpts=PTS-STARTPTS,"
+                  f"afade=t=out:st={max(0.0, total - 1.2):.3f}:d=1.2,volume={mv}[mu]")
+    if voices and music:
+        fa.append("[vo][mu]amix=inputs=2:normalize=0:duration=first[a]")
+    elif voices:
+        fa.append(f"[vo]afade=t=out:st={max(0.0, total - 0.6):.3f}:d=0.6[a]")
+    elif music:
+        fa[-1] = fa[-1].replace("[mu]", "[a]")
+    if fa:
+        cmd[cmd.index("-filter_complex") + 1] += ";" + ";".join(fa)
         cmd += ["-map", "[a]", "-c:a", "aac", "-b:a", "128k"]
     else:
         cmd += ["-an"]
@@ -212,7 +238,7 @@ def assemble(scene_paths, trans, tdur, music, volume, out):
     return total
 
 
-def render_variant(ctx, media, var, prod, music, out):
+def render_variant(ctx, media, var, prod, music, out, voices=None):
     """media: daftar sudah diprepare dan diputar urutannya. prod: name, price, lines."""
     st = STYLES[var["style"]]
     s = ctx.settings
@@ -229,7 +255,7 @@ def render_variant(ctx, media, var, prod, music, out):
     endp = os.path.join(ctx.work, f"{tag}_end.mp4")
     build_end(ctx, media[-1], prod["name"], prod["price"], var["cta"], ai, st, endp)
     scenes.append(endp)
-    total = assemble(scenes, st["trans"], st["tdur"], music, s.get("musik_volume", 0.6), out)
+    total = assemble(scenes, st["trans"], st["tdur"], music, s.get("musik_volume", 0.6), out, voices)
     for p in scenes:
         try:
             os.remove(p)

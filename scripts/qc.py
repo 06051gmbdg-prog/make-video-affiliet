@@ -16,6 +16,12 @@ def frame_brightness(path, t):
     return float(m.group(1)) if m else None
 
 
+def has_audio(path):
+    r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "a", "-show_entries", "stream=codec_type",
+                        "-of", "csv=p=0", path], capture_output=True, text=True)
+    return "audio" in r.stdout
+
+
 def qc_video(path, meta, settings):
     """Kembalikan (lulus, daftar cek). meta: name, price, n_scenes, konfirmasi, caption, has_clip."""
     info = probe(path)
@@ -39,5 +45,7 @@ def qc_video(path, meta, settings):
     add(ok_frames, "Frame tidak hitam atau kosong")
     add(meta["n_scenes"] >= settings["foto_min"], f"Minimal {settings['foto_min']} adegan ({meta['n_scenes']} adegan)")
     add(bool(meta["name"]) and bool(meta["price"]), "Nama dan harga produk terisi")
+    if meta.get("butuh_suara"):
+        add(has_audio(path), "Ada suara narasi" if meta.get("suara_ok") else "Ada suara (narasi tidak lengkap)")
     add(len(meta["caption"]) > 20, "Caption dan hashtag siap")
     return all(c["ok"] for c in checks), checks

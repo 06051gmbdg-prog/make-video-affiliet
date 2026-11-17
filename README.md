@@ -101,6 +101,15 @@ Video yang lulus QC dikirim ke chat Telegram-mu beserta caption, jadi bisa langs
 Jangan menempel token di chat atau Issue. Simpan hanya di Secrets. Bot Telegram membatasi file 50 MB (video di sini 4 sampai 5 MB).
 Tanpa kedua secret, langkah ini dilewati dan video tetap ada di Release.
 
+## Suara narasi
+
+Video baru otomatis berisi suara narasi bahasa Indonesia. Pilih **Suara narasi** di form: Perempuan, Laki-laki, atau Tanpa suara
+(di Run workflow, kolom `suara`). Naskah dibaca dari nama produk, kalimat pembuka, dan harga yang kamu tulis, tanpa klaim tambahan.
+Pembuka dibaca di awal video, harga dan ajakan dibaca saat kartu akhir. Kalau ada musik di folder `musik/`, volumenya otomatis turun saat narasi.
+
+Mesin suara: edge-tts (jernih, butuh internet, gratis tanpa kunci). Kalau gagal, dipakai espeak-ng (suara robot). Kalau keduanya gagal,
+video dibuat tanpa narasi dan QC memberi tanda. Suara ini dibuat komputer. Untuk suara manusia asli, rekam klip presenter sendiri.
+
 ## Musik
 
 Taruh satu file musik milik sendiri atau bebas hak cipta (`.mp3`, `.m4a`, `.wav`) di folder `musik/`.
@@ -126,6 +135,7 @@ File pertama (urut nama) dipakai untuk semua video. Kosongkan folder untuk video
 | `scripts/run.py` | Alur utama: kalimat, bahan, render, QC, caption, ringkasan |
 | `scripts/render.py` | Render FFmpeg: zoom foto, klip, transisi, teks, harga, kartu akhir, musik |
 | `scripts/qc.py` | Pemeriksaan kualitas |
+| `scripts/tts.py` | Suara narasi bahasa Indonesia |
 | `scripts/pixabay.py` | Ambil klip suasana dari Pixabay |
 | `scripts/kirim_telegram.sh` | Kirim video lulus QC ke Telegram |
 | `scripts/fetch_media.py` | Ambil kalimat dan lampiran dari Issue |

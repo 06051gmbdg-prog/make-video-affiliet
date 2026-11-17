@@ -23,6 +23,12 @@ on:
         default: "3"
         type: choice
         options: ["3", "2", "1"]
+      suara:
+        description: "Suara narasi"
+        required: true
+        default: "perempuan"
+        type: choice
+        options: ["perempuan", "laki-laki", "tanpa"]
       suasana:
         description: "Kata kunci klip suasana Pixabay, bahasa Inggris (opsional), contoh: car road night"
         required: false
@@ -56,7 +62,8 @@ jobs:
       - name: Pasang FFmpeg dan font
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y ffmpeg fonts-dejavu-core python3-pil
+          sudo apt-get install -y ffmpeg fonts-dejavu-core python3-pil espeak-ng
+          pip install --break-system-packages edge-tts
 
       - name: Buat nama rilis
         id: tag
@@ -84,9 +91,10 @@ jobs:
           FOLDER: ${{ inputs.folder }}
           VARIAN: ${{ inputs.varian }}
           SUASANA: ${{ inputs.suasana }}
+          SUARA: ${{ inputs.suara }}
         run: |
           python3 scripts/run.py --kalimat "$KALIMAT" --folder "$FOLDER" --varian "$VARIAN" \
-            --suasana "$SUASANA" --out out --repo "$REPO" --tag "$TAG"
+            --suasana "$SUASANA" --suara "$SUARA" --out out --repo "$REPO" --tag "$TAG"
 
       - name: Buat Release berisi video siap upload
         if: success() && hashFiles('out/siap_upload/*.mp4') != ''

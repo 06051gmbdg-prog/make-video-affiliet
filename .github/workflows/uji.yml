@@ -25,7 +25,8 @@ jobs:
       - name: Pasang FFmpeg dan font
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y ffmpeg fonts-dejavu-core python3-pil
+          sudo apt-get install -y ffmpeg fonts-dejavu-core python3-pil espeak-ng
+          pip install --break-system-packages edge-tts
           ffmpeg -version | head -1
 
       - name: Tes unit
@@ -43,6 +44,10 @@ jobs:
           echo "Video lulus: $n"
           cat out/ringkasan.md
           test "$n" -eq 3
+          for f in out/siap_upload/*.mp4; do
+            ffprobe -v error -select_streams a -show_entries stream=codec_type -of csv=p=0 "$f" | grep -q audio \
+              || { echo "Tanpa suara: $f"; exit 1; }
+          done
 
       - uses: actions/upload-artifact@v4
         if: always() && hashFiles('out/**') != ''
